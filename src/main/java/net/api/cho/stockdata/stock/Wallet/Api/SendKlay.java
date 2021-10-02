@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Boolean.TRUE;
@@ -25,7 +26,7 @@ public class SendKlay {
     private final String Auth = "Basic S0FTSzA0QTRYNEI1WVJBTE1EUDBUTzUzOnRTQ1VacVhoLUt4a0dnTklwdHZVQWV5aGtodnFLMmFHeVVKMHAtblg=";
     private final String URL = "https://wallet-api.klaytnapi.com/v2/tx/value";
 
-    public Object send(KlayDto klayDto) throws ParseException {
+    public HashMap<String, Boolean> send(KlayDto klayDto) throws ParseException {
         final HttpHeaders headers = new HttpHeaders();
         headers.set("x-chain-id", chain_id);
         headers.set("Authorization", Auth);
@@ -40,13 +41,19 @@ public class SendKlay {
         request.put("nonce",0);
         request.put("submit", submit);
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
-        System.out.println(request.toString());
         ResponseEntity<String> response = restTemplates.postForEntity(URL,entity,String.class);
         String jText = response.getBody().toString();
-        System.out.println(jText);
         JSONParser parser = new JSONParser();
         JSONObject obj = (JSONObject) parser.parse(jText);
-        return obj;
+        String status = obj.get("status").toString();
+        HashMap<String, Boolean> result = new HashMap<>();
+        if(status.equals("Submitted")){
+            result.put("Status",true);
+        }
+        else{
+            result.put("Status",false);
+        }
+        return result;
 
     }
     public static String changeNumber(double num) {

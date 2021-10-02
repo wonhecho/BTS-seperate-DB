@@ -44,10 +44,8 @@ public class NFTapi {
         request.put("id",NFTid);
         request.put("uri","127.0.0.1:8080/NFT/checkNFTbyid/"+makeNFT.getId());
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
-        System.out.println(request.toString());
         ResponseEntity<String> response = restTemplates.postForEntity(URL,entity,String.class);
         String jText = response.getBody().toString();
-        System.out.println(jText);
         JSONParser parser = new JSONParser();
         JSONObject obj = (JSONObject) parser.parse(jText);
         String status = obj.get("status").toString();

@@ -30,15 +30,14 @@ public class WalletServiceImpl implements WalletService{
     }
 
     @Override
-    public HashMap<String, String> CreateWallet(UserDto userDto) throws IOException {
+    public HashMap<String, String> CreateWallet(String userid) throws IOException {
         WalletDto walletinfo = wallet.CreateWallet();
         Wallet wallet = new Wallet();
         wallet.setAddress(walletinfo.getAddress());
-        wallet.setEmail(userDto.getEmail());
-        wallet.setName(userDto.getName());
+        wallet.setName(userid);
         HashMap<String,String> result = new HashMap<>();
         result.put("address",walletinfo.getAddress());
-        result.put("id",userDto.getName());
+        result.put("id",userid);
         feignController.sendWalletaddress(result);
         return result;
     }
@@ -52,15 +51,25 @@ public class WalletServiceImpl implements WalletService{
     }
 
     @Override
-    public Object send(KlayDto klayDto) throws ParseException{
-        return sendKlay.send(klayDto);
+    public HashMap<String, Boolean> send(KlayDto klayDto) throws ParseException{
+        String to = feignController.getaddressByUserId(klayDto.getTo()).get("address");
+        String from = feignController.getaddressByUserId(klayDto.getFrom()).get("address");
+        KlayDto exchange = KlayDto.builder().to(to).from(from).value(klayDto.getValue()).build();
+        return sendKlay.send(exchange);
     }
 
     @Override
-    public HashMap<String, Boolean> findwallet(String email) {
-        boolean check = walletRepository.existsByemail(email);
+    public HashMap<String, Boolean> findwallet(String userid) {
+        HashMap<String,String> check = feignController.getaddressByUserId(userid);
+        boolean enter;
+        if(check.get("address") == "")
+        {
+            enter = false;
+        }
+        else
+            enter = true;
         HashMap<String,Boolean> result = new HashMap<>();
-        result.put("status",check);
+        result.put("status",enter);
         return result;
     }
 }

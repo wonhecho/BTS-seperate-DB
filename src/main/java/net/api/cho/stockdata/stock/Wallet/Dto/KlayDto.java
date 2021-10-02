@@ -1,5 +1,6 @@
 package net.api.cho.stockdata.stock.Wallet.Dto;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,7 +12,8 @@ public class KlayDto {
     private String to;
     private double value;
 
-    public KlayDto(String from,String to,Integer value){
+    @Builder
+    public KlayDto(String from,String to,double value){
         this.from = from;
         this.to = to;
         this.value = value;
